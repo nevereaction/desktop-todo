@@ -9,7 +9,7 @@ const PANELS = {
   todo: '待办清单',
   pomodoro: '番茄钟',
   notes: '便签',
-  music: '音乐',
+  music: '媒体',
 };
 
 function App() {

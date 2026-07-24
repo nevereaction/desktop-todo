@@ -14,4 +14,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     set: (key, value) => ipcRenderer.invoke('store:set', key, value),
     delete: (key) => ipcRenderer.invoke('store:delete', key),
   },
+  media: {
+    selectFiles: () => ipcRenderer.invoke('media:selectFiles'),
+    selectFolder: () => ipcRenderer.invoke('media:selectFolder'),
+  },
 });

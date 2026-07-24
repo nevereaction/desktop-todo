@@ -1,13 +1,13 @@
 {
   "name": "desktop-todo",
   "version": "1.1.0",
-  "description": "桌面待办清单 - 番茄钟 + 待办 + 便签 + 网易云音乐",
+  "description": "桌面待办清单 - 番茄钟 + 待办 + 便签 + 本地音乐",
   "main": "electron/main.js",
   "scripts": {
-    "dev": "concurrently \"vite\" \"cross-env NODE_ENV=development electron .\"",
+    "dev": "concurrently \"vite\" \"electron .\"",
     "build": "vite build && electron-builder",
     "vite:dev": "vite",
-    "electron:dev": "cross-env NODE_ENV=development electron ."
+    "electron:dev": "electron ."
   },
   "build": {
     "appId": "com.desktop-todo.app",

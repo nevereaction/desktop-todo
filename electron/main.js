@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, Notification, globalShortcut, nativeImage, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, Notification, globalShortcut, nativeImage, screen, dialog, protocol, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -35,7 +35,7 @@ function writeStore(data) {
 
 let mainWindow = null;
 let tray = null;
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = !app.isPackaged;
 
 function createWindow() {
   const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
@@ -90,6 +90,18 @@ function createTray() {
 }
 
 app.whenReady().then(() => {
+  // 注册自定义协议处理本地文件（解决 file:// 被 CORS 拦截的问题）
+  protocol.handle('local-media', (request) => {
+    // URL 格式: local-media:///C:/path/to/file.mp3
+    const url = new URL(request.url);
+    const filePath = decodeURIComponent(url.pathname);
+    // Windows 下去掉路径开头的斜杠 (如 /C:/... → C:/...)
+    const normalizedPath = process.platform === 'win32' && /^\/[A-Za-z]:/.test(filePath)
+      ? filePath.slice(1)
+      : filePath;
+    return net.fetch(`file:///${normalizedPath.replace(/\\/g, '/')}`);
+  });
+
   createWindow();
   createTray();
 
@@ -104,6 +116,55 @@ app.whenReady().then(() => {
 
   ipcMain.handle('notify', (_, { title, body }) => {
     new Notification({ title, body }).show();
+  });
+
+  // Media file selection
+  ipcMain.handle('media:selectFiles', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: '选择媒体文件',
+      filters: [
+        { name: '媒体文件', extensions: ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'wma', 'opus', 'weba', 'mp4', 'mkv', 'avi', 'webm', 'mov', 'wmv', 'flv', 'm4v', 'ogv'] },
+        { name: '音频文件', extensions: ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'wma', 'opus', 'weba'] },
+        { name: '视频文件', extensions: ['mp4', 'mkv', 'avi', 'webm', 'mov', 'wmv', 'flv', 'm4v', 'ogv'] },
+        { name: '所有文件', extensions: ['*'] },
+      ],
+      properties: ['openFile', 'multiSelections'],
+    });
+    if (result.canceled || !result.filePaths.length) return [];
+    return result.filePaths.map((fp, i) => ({
+      id: `file_${Date.now()}_${i}`,
+      name: path.basename(fp, path.extname(fp)),
+      path: fp,
+      isFile: true,
+    }));
+  });
+
+  ipcMain.handle('media:selectFolder', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: '选择媒体文件夹',
+      properties: ['openDirectory'],
+    });
+    if (result.canceled || !result.filePaths.length) return [];
+    const dir = result.filePaths[0];
+    const exts = new Set(['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'wma', 'opus', 'weba', 'mp4', 'mkv', 'avi', 'webm', 'mov', 'wmv', 'flv', 'm4v', 'ogv']);
+    const files = [];
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isFile()) {
+          const ext = path.extname(entry.name).replace('.', '').toLowerCase();
+          if (exts.has(ext)) {
+            files.push({
+              id: `file_${Date.now()}_${files.length}`,
+              name: path.basename(entry.name, path.extname(entry.name)),
+              path: path.join(dir, entry.name),
+              isFile: true,
+            });
+          }
+        }
+      }
+    } catch (e) { /* ignore */ }
+    return files;
   });
 
   // Simple JSON file store

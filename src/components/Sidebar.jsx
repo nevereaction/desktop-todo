@@ -4,7 +4,7 @@ const NAV_ITEMS = [
   { key: 'todo', icon: '✅', label: '待办清单' },
   { key: 'pomodoro', icon: '🍅', label: '番茄钟' },
   { key: 'notes', icon: '📝', label: '便签' },
-  { key: 'music', icon: '🎵', label: '音乐' },
+  { key: 'music', icon: '🎬', label: '媒体' },
 ];
 
 function Sidebar({ activePanel, onPanelChange, theme, onToggleTheme, todoCount }) {
