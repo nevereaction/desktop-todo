@@ -1,6 +1,6 @@
 {
   "name": "desktop-todo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "桌面待办清单 - 番茄钟 + 待办 + 便签 + 网易云音乐",
   "main": "electron/main.js",
   "scripts": {
