@@ -51,7 +51,6 @@ function createWindow() {
     transparent: true,
     resizable: true,
     skipTaskbar: false,
-    icon: path.join(__dirname, '..', 'assets', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
