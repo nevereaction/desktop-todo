@@ -70,14 +70,29 @@ function App() {
 }
 
 function TitleBar() {
+  const [pinned, setPinned] = useState(false);
+
   const handleMinimize = () => window.electronAPI?.window.minimize();
   const handleMaximize = () => window.electronAPI?.window.maximize();
   const handleClose = () => window.electronAPI?.window.close();
+
+  const togglePin = () => {
+    const next = !pinned;
+    setPinned(next);
+    window.electronAPI?.window.setAlwaysOnTop(next);
+  };
 
   return (
     <div className="title-bar">
       <span className="title-bar__text">桌面待办</span>
       <div className="title-bar__actions">
+        <button
+          className={`title-bar__pin ${pinned ? 'title-bar__pin--active' : ''}`}
+          onClick={togglePin}
+          title={pinned ? '取消置顶' : '置顶窗口'}
+        >
+          📌
+        </button>
         <button className="title-bar__btn title-bar__btn--minimize" onClick={handleMinimize} title="最小化" />
         <button className="title-bar__btn title-bar__btn--maximize" onClick={handleMaximize} title="最大化" />
         <button className="title-bar__btn title-bar__btn--close" onClick={handleClose} title="关闭" />

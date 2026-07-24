@@ -103,8 +103,30 @@ body {
 
 .title-bar__actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  align-items: center;
   -webkit-app-region: no-drag;
+}
+
+.title-bar__pin {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  opacity: 0.35;
+  transition: all var(--transition);
+  line-height: 1;
+  -webkit-app-region: no-drag;
+  margin-right: 4px;
+}
+
+.title-bar__pin:hover { opacity: 0.7; background: var(--bg-glass-hover); }
+
+.title-bar__pin--active {
+  opacity: 1;
+  background: var(--accent);
 }
 
 .title-bar__btn {
